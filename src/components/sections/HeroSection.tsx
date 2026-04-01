@@ -10,18 +10,18 @@ export function HeroSection() {
         </span>
       </div>
 
-      <div className="mt-6 grid gap-5 lg:grid-cols-[1.3fr_0.7fr]">
-        <div>
+      <div className="mt-7 grid items-start gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:gap-8">
+        <div className="space-y-6">
           <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-slate-100 md:text-6xl">
             Base Clara
           </h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 md:text-lg">
+          <p className="max-w-2xl text-base leading-relaxed text-slate-300 md:text-lg">
             Diagnostique qualidade e consistencia dos dados antes da analise.
             Entenda risco, prioridades e caminhos de tratamento com uma interface objetiva,
             privada e pronta para uso em producao.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <a
               href="#upload-local"
               className="rounded-xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition duration-200 hover:-translate-y-0.5 hover:bg-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-200 focus:ring-offset-2 focus:ring-offset-surface-800"
@@ -32,13 +32,37 @@ export function HeroSection() {
               Todo o processamento acontece no seu dispositivo, sem backend.
             </p>
           </div>
+
+          <div className="max-w-2xl rounded-2xl border border-surface-600 bg-surface-900/65 p-4 md:p-5">
+            <p className="text-sm font-semibold text-slate-100">Mario Schenkel</p>
+            <p className="mt-1 text-xs uppercase tracking-[0.1em] text-slate-400">Data Analyst</p>
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+              <a
+                href="https://schenkel94.github.io/portfolio/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-cyan-300 transition-colors hover:text-cyan-200"
+              >
+                Portfolio
+              </a>
+              <span className="text-slate-600">|</span>
+              <a
+                href="https://www.linkedin.com/in/marioschenkel/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-cyan-300 transition-colors hover:text-cyan-200"
+              >
+                LinkedIn
+              </a>
+            </div>
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-surface-600 bg-surface-900/75 p-4">
+        <div className="rounded-2xl border border-surface-600 bg-surface-900/75 p-5 md:p-6 lg:min-h-[220px]">
           <p className="text-xs uppercase tracking-[0.1em] text-slate-400">
             Aviso de Privacidade
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-300">
+          <p className="mt-3 text-sm leading-relaxed text-slate-300">
             Este app usa apenas cookies tecnicos para lembrar preferencias locais.
             Nenhum dado pessoal ou conteudo de arquivo e coletado, enviado ou compartilhado.
           </p>

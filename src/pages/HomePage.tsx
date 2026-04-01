@@ -37,6 +37,29 @@ export function HomePage() {
       <LanguageTabsSection dataset={dataset} analysisResult={analysisResult} />
 
       <TechnicalChecklistSection analysisResult={analysisResult} />
+
+      <footer className="rounded-2xl border border-surface-600 bg-surface-900/60 px-4 py-4 text-sm text-slate-300 md:px-5">
+        <p className="font-medium text-slate-200">Powered by Mario Schenkel - Data Analyst</p>
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <a
+            href="https://schenkel94.github.io/portfolio/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-cyan-300 transition-colors hover:text-cyan-200"
+          >
+            Portfolio
+          </a>
+          <span className="text-slate-600">|</span>
+          <a
+            href="https://www.linkedin.com/in/marioschenkel/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-cyan-300 transition-colors hover:text-cyan-200"
+          >
+            LinkedIn
+          </a>
+        </div>
+      </footer>
     </AppShell>
   );
 }
