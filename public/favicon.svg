@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Antes do Dashboard">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22d3ee" />
+      <stop offset="100%" stop-color="#0ea5e9" />
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#0b1220" />
+  <path d="M16 42l9-16 8 12 8-14 7 18" fill="none" stroke="url(#g)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="16" cy="42" r="2.5" fill="#22d3ee" />
+  <circle cx="25" cy="26" r="2.5" fill="#38bdf8" />
+  <circle cx="33" cy="38" r="2.5" fill="#67e8f9" />
+  <circle cx="41" cy="24" r="2.5" fill="#22d3ee" />
+  <circle cx="48" cy="42" r="2.5" fill="#38bdf8" />
+</svg>
