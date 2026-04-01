@@ -4,7 +4,7 @@ export function HeroSection() {
   return (
     <section className="rounded-3xl border border-surface-600/80 bg-gradient-to-b from-surface-700/85 to-surface-900/85 p-6 shadow-glow md:p-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <InfoBadge>Processamento 100% local no navegador</InfoBadge>
+        <InfoBadge>Processamento 100% local, 0 riscos a sua privacidade</InfoBadge>
         <span className="rounded-full border border-slate-500/50 bg-surface-900/80 px-3 py-1 text-xs text-slate-300">
           Sem backend, sem envio de dados
         </span>
@@ -13,10 +13,10 @@ export function HeroSection() {
       <div className="mt-6 grid gap-5 lg:grid-cols-[1.3fr_0.7fr]">
         <div>
           <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-slate-100 md:text-6xl">
-            Antes do Dashboard
+            Base Clara
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 md:text-lg">
-            Diagnostique qualidade e consistencia dos dados antes da analise final.
+            Diagnostique qualidade e consistencia dos dados antes da analise.
             Entenda risco, prioridades e caminhos de tratamento com uma interface objetiva,
             privada e pronta para uso em producao.
           </p>
@@ -35,10 +35,12 @@ export function HeroSection() {
         </div>
 
         <div className="rounded-2xl border border-surface-600 bg-surface-900/75 p-4">
-          <p className="text-xs uppercase tracking-[0.1em] text-slate-400">Privacidade</p>
+          <p className="text-xs uppercase tracking-[0.1em] text-slate-400">
+            Aviso de Privacidade
+          </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-300">
-            Arquivos permanecem no navegador durante upload, parsing e analise.
-            Nenhum conteudo e transmitido para servidor.
+            Este app usa apenas cookies tecnicos para lembrar preferencias locais.
+            Nenhum dado pessoal ou conteudo de arquivo e coletado, enviado ou compartilhado.
           </p>
         </div>
       </div>

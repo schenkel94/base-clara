@@ -3,7 +3,7 @@ import type { LoadedDataset } from "@/features/data-import/types";
 
 type DiagnosticExportPayload = {
   generatedAt: string;
-  app: "Antes do Dashboard";
+  app: "Base Clara";
   dataset: {
     fileName: string;
     fileType: string;
@@ -53,7 +53,7 @@ function downloadTextFile(content: string, filename: string, mimeType: string) {
 function buildPayload(dataset: LoadedDataset, result: DataQualityAnalysisResult): DiagnosticExportPayload {
   return {
     generatedAt: new Date().toISOString(),
-    app: "Antes do Dashboard",
+    app: "Base Clara",
     dataset: {
       fileName: dataset.fileName,
       fileType: dataset.fileType,
@@ -70,7 +70,7 @@ function buildPayload(dataset: LoadedDataset, result: DataQualityAnalysisResult)
 export function buildDiagnosticMarkdown(dataset: LoadedDataset, result: DataQualityAnalysisResult) {
   const lines: string[] = [];
 
-  lines.push("# Relatorio tecnico - Antes do Dashboard");
+  lines.push("# Relatorio tecnico - Base Clara");
   lines.push("");
   lines.push(`Gerado em: ${new Date().toLocaleString("pt-BR")}`);
   lines.push(`Arquivo: ${dataset.fileName} (${dataset.fileType.toUpperCase()})`);
@@ -145,7 +145,7 @@ export function printDiagnosticReport(dataset: LoadedDataset, result: DataQualit
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Relatorio - Antes do Dashboard</title>
+    <title>Relatorio - Base Clara</title>
     <style>
       body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 28px; color: #0f172a; }
       h1 { margin-bottom: 8px; }
@@ -154,7 +154,7 @@ export function printDiagnosticReport(dataset: LoadedDataset, result: DataQualit
     </style>
   </head>
   <body>
-    <h1>Antes do Dashboard</h1>
+    <h1>Base Clara</h1>
     <pre>${escapeHtml(markdown)}</pre>
   </body>
 </html>`);

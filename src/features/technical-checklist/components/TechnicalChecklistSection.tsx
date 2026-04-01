@@ -77,7 +77,7 @@ export function TechnicalChecklistSection({ analysisResult }: TechnicalChecklist
   return (
     <SectionCard
       title="Checklist tecnico"
-      description="Plano rapido de execucao para tratamento antes da analise final."
+      description="Plano rapido de execucao para tratamento antes da analise."
     >
       <div className="space-y-4">
         <p className="text-sm text-slate-300">{suggestion.explanation}</p>

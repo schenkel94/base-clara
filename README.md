@@ -1,8 +1,8 @@
-# Base Clara | Antes do Dashboard
+# Base Clara
 
 ![Status](https://img.shields.io/badge/Status-Online-brightgreen)
 ![Produto](https://img.shields.io/badge/Produto-Gratuito-00b894)
-![Privacidade](https://img.shields.io/badge/Processamento-100%25%20Local-0984e3)
+![Privacidade](https://img.shields.io/badge/Privacidade-100%25%20local%20e%20sem%20coleta-0984e3)
 ![Stack](https://img.shields.io/badge/Web-React%20%2B%20TypeScript-61dafb)
 
 O **Base Clara** e uma ferramenta gratuita para diagnosticar rapidamente a qualidade de arquivos de dados antes da etapa de analise e dashboard.
@@ -48,7 +48,8 @@ Clique na imagem para abrir o app:
 2. Envie seu arquivo.
 3. Veja o diagnostico, as prioridades e os exemplos de tratamento.
 
-## Privacidade em primeiro lugar
+## Aviso de Privacidade
 
-O Base Clara foi desenhado para manter o processamento local no navegador.  
-Seu arquivo e tratado no proprio dispositivo durante o uso do app.
+O Base Clara processa dados localmente no navegador.
+Cookies tecnicos sao usados apenas para preferencias de uso e ultima sessao local.
+Nenhum dado pessoal ou conteudo de arquivo e coletado, enviado ou compartilhado.
