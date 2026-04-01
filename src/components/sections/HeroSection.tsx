@@ -32,11 +32,15 @@ export function HeroSection() {
               Todo o processamento acontece no seu dispositivo, sem backend.
             </p>
           </div>
+        </div>
 
-          <div className="max-w-2xl rounded-2xl border border-surface-600 bg-surface-900/65 p-4 md:p-5">
-            <p className="text-sm font-semibold text-slate-100">Mario Schenkel</p>
-            <p className="mt-1 text-xs uppercase tracking-[0.1em] text-slate-400">Data Analyst</p>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+        <div className="flex flex-col items-start gap-4 lg:items-end">
+          <div className="w-full max-w-sm lg:text-right">
+            <p className="font-display text-2xl font-semibold tracking-tight text-slate-100">
+              Mario Schenkel
+            </p>
+            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-slate-400">Data Analyst</p>
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm lg:justify-end">
               <a
                 href="https://schenkel94.github.io/portfolio/"
                 target="_blank"
@@ -56,16 +60,14 @@ export function HeroSection() {
               </a>
             </div>
           </div>
-        </div>
 
-        <div className="rounded-2xl border border-surface-600 bg-surface-900/75 p-5 md:p-6 lg:min-h-[220px]">
-          <p className="text-xs uppercase tracking-[0.1em] text-slate-400">
-            Aviso de Privacidade
-          </p>
-          <p className="mt-3 text-sm leading-relaxed text-slate-300">
-            Este app usa apenas cookies tecnicos para lembrar preferencias locais.
-            Nenhum dado pessoal ou conteudo de arquivo e coletado, enviado ou compartilhado.
-          </p>
+          <div className="w-full max-w-sm rounded-2xl border border-surface-600 bg-surface-900/75 p-4">
+            <p className="text-xs uppercase tracking-[0.1em] text-slate-400">Aviso de Privacidade</p>
+            <p className="mt-2 text-sm leading-relaxed text-slate-300">
+              Este app usa apenas cookies tecnicos para lembrar preferencias locais.
+              Nenhum dado pessoal ou conteudo de arquivo e coletado, enviado ou compartilhado.
+            </p>
+          </div>
         </div>
       </div>
     </section>
