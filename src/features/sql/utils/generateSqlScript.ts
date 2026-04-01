@@ -21,8 +21,8 @@ const SEVERITY_WEIGHT: Record<ProblemSeverity, number> = {
   low: 1,
 };
 
-function dedupe(values: string[]) {
-  return Array.from(new Set(values));
+function dedupe<T extends string>(values: T[]): T[] {
+  return Array.from(new Set(values)) as T[];
 }
 
 function toSqlIdentifier(name: string) {

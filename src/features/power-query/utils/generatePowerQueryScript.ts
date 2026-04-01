@@ -19,8 +19,8 @@ const PROBLEM_REASON_LABEL: Record<QualityProblemCode, string> = {
   CONSTANT_COLUMN: "colunas constantes",
 };
 
-function dedupe(values: string[]) {
-  return Array.from(new Set(values));
+function dedupe<T extends string>(values: T[]): T[] {
+  return Array.from(new Set(values)) as T[];
 }
 
 function toMString(value: string) {

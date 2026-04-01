@@ -27,8 +27,8 @@ function toPythonStringList(values: string[]) {
   return `[${values.map((value) => toPythonString(value)).join(", ")}]`;
 }
 
-function dedupe(values: string[]) {
-  return Array.from(new Set(values));
+function dedupe<T extends string>(values: T[]): T[] {
+  return Array.from(new Set(values)) as T[];
 }
 
 function toNotebookColumnName(columnName: string) {
