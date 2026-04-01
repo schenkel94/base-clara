@@ -1,61 +1,54 @@
-# Antes do Dashboard
+# Base Clara | Antes do Dashboard
 
-Aplicacao web 100% client-side para diagnostico de qualidade de dados (CSV, XLSX, XLS) antes da etapa de dashboard.
+![Status](https://img.shields.io/badge/Status-Online-brightgreen)
+![Produto](https://img.shields.io/badge/Produto-Gratuito-00b894)
+![Privacidade](https://img.shields.io/badge/Processamento-100%25%20Local-0984e3)
+![Stack](https://img.shields.io/badge/Web-React%20%2B%20TypeScript-61dafb)
 
-## Visao do projeto
+O **Base Clara** e uma ferramenta gratuita para diagnosticar rapidamente a qualidade de arquivos de dados antes da etapa de analise e dashboard.
 
-- Upload e processamento local no navegador (sem backend).
-- Diagnostico de qualidade com score, problemas e prioridades.
-- Sugestoes de tratamento em Python, Power Query e SQL.
-- Checklist tecnica acionavel e exportacoes simples do relatorio.
+Sem backend, sem envio de dados para servidor: tudo acontece no seu navegador.
 
-## Stack
+## Acesse agora
 
-- React 18 + Vite 5 + TypeScript
-- Tailwind CSS
-- Papa Parse (CSV) e SheetJS/XLSX (planilhas)
-- LocalStorage para persistencia de ultimo diagnostico e preferencias de UI
+**Produto online:** [https://baseclara.netlify.app](https://baseclara.netlify.app)
 
-## Rodar localmente
+Clique na imagem para abrir o app:
 
-1. Instale Node.js 20+ (recomendado).
-2. Instale dependencias:
-   ```bash
-   npm install
-   ```
-3. Rode em desenvolvimento:
-   ```bash
-   npm run dev
-   ```
-4. Acesse a URL exibida pelo Vite (geralmente `http://localhost:5173`).
+[![Base Clara - preview](./print1.png)](https://baseclara.netlify.app)
 
-## Gerar build de producao
+## O que voce consegue fazer
 
-```bash
-npm run build
-```
+- Carregar arquivos `.csv`, `.xlsx` e `.xls` direto no navegador.
+- Receber um diagnostico de qualidade com score e prioridades de tratamento.
+- Visualizar riscos de analise antes de construir dashboard.
+- Gerar exemplos praticos de tratamento em:
+  - Python (pandas)
+  - Power Query (M)
+  - SQL
+- Exportar diagnostico para compartilhamento tecnico.
 
-Saida gerada em `dist/`.
+## Diferenciais do produto
 
-## Publicar no Netlify
+- **100% client-side:** seus dados nao saem da sua maquina.
+- **Uso imediato:** nao exige instalacao local.
+- **Foco pratico:** transforma problemas de dados em plano acionavel.
+- **Leitura rapida:** interface pensada para decisao, nao para complexidade.
 
-### Opcao 1: Deploy via Git (recomendado)
+## Para quem e
 
-1. Suba este projeto para um repositorio Git.
-2. No Netlify, clique em **Add new site** > **Import an existing project**.
-3. Selecione o repositorio.
-4. Confirme as configuracoes (ja definidas em `netlify.toml`):
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-5. Clique em **Deploy site**.
+- Analistas de dados e BI.
+- Profissionais que recebem planilhas operacionais.
+- Times que querem reduzir retrabalho antes do dashboard.
+- Pessoas que precisam validar qualidade de dados em poucos minutos.
 
-### Opcao 2: Deploy manual
+## Como usar (30 segundos)
 
-1. Gere o build com `npm run build`.
-2. No Netlify, use **Deploy manually** e arraste a pasta `dist`.
+1. Acesse [baseclara.netlify.app](https://baseclara.netlify.app).
+2. Envie seu arquivo.
+3. Veja o diagnostico, as prioridades e os exemplos de tratamento.
 
-## Observacoes de deploy
+## Privacidade em primeiro lugar
 
-- O projeto usa roteamento estatico com fallback para `index.html` via `netlify.toml`.
-- O favicon placeholder esta em `public/favicon.svg`.
-- Nao existe dependencia de backend para funcionamento.
+O Base Clara foi desenhado para manter o processamento local no navegador.  
+Seu arquivo e tratado no proprio dispositivo durante o uso do app.
