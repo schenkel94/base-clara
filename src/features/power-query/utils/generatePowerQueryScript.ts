@@ -152,7 +152,7 @@ export function generatePowerQuerySuggestion(
   const textColumns = getColumnsByCodes(input, ["CATEGORICAL_FORMAT_VARIATION"]);
   const validationColumns = dedupe([...nullColumns, ...numericColumns, ...dateColumns]);
 
-  const removeDuplicates = input.analysis.summary.duplicateRowCount > 0;
+  const removeDuplicates = detectedProblemCodes.includes("DUPLICATE_ROWS");
   const sourceBlock = getSourceBlock(input);
 
   const script = `let

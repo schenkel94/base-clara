@@ -160,7 +160,7 @@ export function generatePandasNotebookSuggestion(input: NotebookGenerationInput)
   const mixedColumns = getColumnsByCodes(input, ["MIXED_DATA_TYPES"]);
   const dateColumns = getColumnsByCodes(input, ["INCONSISTENT_DATE_VALUES"]);
   const textColumns = getColumnsByCodes(input, ["CATEGORICAL_FORMAT_VARIATION"]);
-  const duplicatedRowsDetected = input.analysis.summary.duplicateRowCount > 0;
+  const duplicatedRowsDetected = problemCodes.includes("DUPLICATE_ROWS");
 
   const conversionColumns = dedupe([...numericColumns, ...mixedColumns]);
   const readExpression = getReadExpression(input.dataset.fileName, input.dataset.fileExtension);
