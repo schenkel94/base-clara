@@ -181,7 +181,7 @@ export function generateSqlSuggestion(input: SqlGenerationInput): SqlSuggestion 
     dateColumns,
     fallbackColumns,
   );
-  const duplicateDetected = input.analysis.summary.duplicateRowCount > 0;
+  const duplicateDetected = detectedProblemCodes.includes("DUPLICATE_ROWS");
 
   const textSelectLines = fallbackColumns.map((column) => {
     if (upperTextColumns.includes(column)) {

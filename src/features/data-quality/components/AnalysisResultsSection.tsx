@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { ReadinessScorePanel } from "@/features/data-quality/components/ReadinessScorePanel";
 import { ResultMetricCard } from "@/features/data-quality/components/ResultMetricCard";
 import { SeverityBadge } from "@/features/data-quality/components/SeverityBadge";
-import type { LoadedDataset } from "@/features/data-import/types";
+import type { CellValue, LoadedDataset } from "@/features/data-import/types";
 import type {
   ColumnQualityMetrics,
   DataQualityAnalysisResult,
@@ -18,13 +18,17 @@ import {
   calculateRiskIndex,
   countAffectedColumnsByCodes,
   getRiskLevelLabel,
-  getTopProblems,
   mapProblemsByColumn,
 } from "@/features/data-quality/utils/presentation";
+import { getProblemAttentionSamples } from "@/features/data-quality/utils/problemAttentionSamples";
 
 type AnalysisResultsSectionProps = {
   dataset: LoadedDataset | null;
   result: DataQualityAnalysisResult | null;
+  effectiveResult: DataQualityAnalysisResult | null;
+  ignoredProblemIds: string[];
+  onToggleIgnoreProblem: (problemId: string) => void;
+  onClearIgnoredProblems: () => void;
 };
 
 type IndicatorTone = "high" | "medium" | "low";
@@ -34,6 +38,12 @@ type ColumnIndicator = {
   tone: IndicatorTone;
   tooltip: string;
 };
+
+const SEVERITY_ORDER = {
+  high: 3,
+  medium: 2,
+  low: 1,
+} as const;
 
 function formatPercent(value: number) {
   return `${(value * 100).toFixed(1)}%`;
@@ -57,6 +67,48 @@ function getIndicatorClass(tone: IndicatorTone) {
   }
 
   return "border-sky-300/40 bg-sky-300/10 text-sky-200";
+}
+
+function sortProblemsBySeverity(problems: QualityProblem[]) {
+  return [...problems].sort((a, b) => {
+    const severityDiff = SEVERITY_ORDER[b.severity] - SEVERITY_ORDER[a.severity];
+    if (severityDiff !== 0) {
+      return severityDiff;
+    }
+
+    return a.title.localeCompare(b.title);
+  });
+}
+
+function formatSampleCellValue(value: CellValue) {
+  if (value === null) {
+    return "null";
+  }
+
+  if (typeof value === "string") {
+    return value === "" ? "(vazio)" : value;
+  }
+
+  return String(value);
+}
+
+function getSamplePreviewColumns(dataset: LoadedDataset, problem: QualityProblem, maxColumns = 6) {
+  const affectedColumns = problem.affectedColumns.filter((columnKey) => dataset.columns.includes(columnKey));
+  if (affectedColumns.length > 0) {
+    return affectedColumns.slice(0, maxColumns);
+  }
+
+  return dataset.columns.slice(0, maxColumns);
+}
+
+function getColumnDisplayName(dataset: LoadedDataset, columnKey: string) {
+  const definition = dataset.columnDefinitions.find((column) => column.key === columnKey);
+  if (!definition) {
+    return columnKey;
+  }
+
+  const trimmedSourceName = definition.sourceName.trim();
+  return trimmedSourceName === "" ? definition.key : trimmedSourceName;
 }
 
 function hasProblemCode(problems: QualityProblem[], code: QualityProblem["code"]) {
@@ -124,8 +176,25 @@ function getColumnIndicators(
   return indicators;
 }
 
-export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSectionProps) {
+export function AnalysisResultsSection({
+  dataset,
+  result,
+  effectiveResult,
+  ignoredProblemIds,
+  onToggleIgnoreProblem,
+  onClearIgnoredProblems,
+}: AnalysisResultsSectionProps) {
   const [exportFeedback, setExportFeedback] = useState<"idle" | "json" | "markdown" | "print" | "error">("idle");
+  const [expandedSampleProblemIds, setExpandedSampleProblemIds] = useState<string[]>([]);
+  const ignoredSet = useMemo(() => new Set(ignoredProblemIds), [ignoredProblemIds]);
+  const spotlightProblems = useMemo(
+    () => (result ? sortProblemsBySeverity(result.problems) : []),
+    [result],
+  );
+
+  useEffect(() => {
+    setExpandedSampleProblemIds([]);
+  }, [result?.summary.analyzedAt]);
 
   if (!result) {
     return (
@@ -143,24 +212,26 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
     );
   }
 
-  const riskIndex = calculateRiskIndex(result.summary);
-  const riskLevel = getRiskLevelLabel(riskIndex);
-  const topProblems = getTopProblems(result.problems, 6);
-  const problemsByColumn = mapProblemsByColumn(result.problems);
-  const totalProblems = Math.max(result.summary.totalProblems, 1);
+  const activeResult = effectiveResult ?? result;
 
-  const columnCountWithRelevantNulls = countAffectedColumnsByCodes(result, [
+  const riskIndex = calculateRiskIndex(activeResult.summary);
+  const riskLevel = getRiskLevelLabel(riskIndex);
+  const visibleProblems = spotlightProblems;
+  const problemsByColumn = mapProblemsByColumn(activeResult.problems);
+  const totalProblems = Math.max(activeResult.summary.totalProblems, 1);
+
+  const columnCountWithRelevantNulls = countAffectedColumnsByCodes(activeResult, [
     "HIGH_NULL_PERCENTAGE",
     "NEARLY_EMPTY_COLUMN",
   ]);
-  const columnCountWithTypeAmbiguity = countAffectedColumnsByCodes(result, [
+  const columnCountWithTypeAmbiguity = countAffectedColumnsByCodes(activeResult, [
     "MIXED_DATA_TYPES",
     "NUMERIC_VALUES_AS_TEXT",
   ]);
-  const columnCountWithSuspiciousDates = countAffectedColumnsByCodes(result, [
+  const columnCountWithSuspiciousDates = countAffectedColumnsByCodes(activeResult, [
     "INCONSISTENT_DATE_VALUES",
   ]);
-  const constantColumnCount = countAffectedColumnsByCodes(result, ["CONSTANT_COLUMN"]);
+  const constantColumnCount = countAffectedColumnsByCodes(activeResult, ["CONSTANT_COLUMN"]);
 
   const canExport = Boolean(dataset);
 
@@ -175,7 +246,7 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
     }
 
     try {
-      exportDiagnosticAsJson(dataset, result);
+      exportDiagnosticAsJson(dataset, activeResult);
       withFeedback("json");
     } catch {
       withFeedback("error");
@@ -188,7 +259,7 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
     }
 
     try {
-      exportDiagnosticAsMarkdown(dataset, result);
+      exportDiagnosticAsMarkdown(dataset, activeResult);
       withFeedback("markdown");
     } catch {
       withFeedback("error");
@@ -200,8 +271,18 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
       return;
     }
 
-    const printed = printDiagnosticReport(dataset, result);
+    const printed = printDiagnosticReport(dataset, activeResult);
     withFeedback(printed ? "print" : "error");
+  };
+
+  const handleToggleSample = (problemId: string) => {
+    setExpandedSampleProblemIds((current) => {
+      if (current.includes(problemId)) {
+        return current.filter((id) => id !== problemId);
+      }
+
+      return [...current, problemId];
+    });
   };
 
   return (
@@ -252,11 +333,11 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
             </p>
           ) : null}
 
-          <ReadinessScorePanel result={result} />
+          <ReadinessScorePanel result={activeResult} />
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <ResultMetricCard label="Linhas analisadas" value={result.summary.totalRows} />
-            <ResultMetricCard label="Colunas analisadas" value={result.summary.totalColumns} />
+            <ResultMetricCard label="Linhas analisadas" value={activeResult.summary.totalRows} />
+            <ResultMetricCard label="Colunas analisadas" value={activeResult.summary.totalColumns} />
             <ResultMetricCard
               label="Colunas com nulos relevantes"
               value={columnCountWithRelevantNulls}
@@ -265,7 +346,7 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
             />
             <ResultMetricCard
               label="Duplicidades"
-              value={result.summary.duplicateRowCount}
+              value={activeResult.summary.duplicateRowCount}
               helper="Linhas totalmente iguais"
               tooltip="Duplicatas completas aumentam risco de distorcao em contagens."
             />
@@ -293,29 +374,141 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
 
       <SectionCard
         title="Pontos essenciais a tratar"
-        description="Principais alertas para reduzir risco antes da etapa de dashboard."
+        description="Principais alertas para reduzir risco. Itens ignorados deixam de impactar checklist e codigos."
       >
-        {topProblems.length > 0 ? (
-          <ul className="space-y-3">
-            {topProblems.map((problem) => (
-              <li
-                key={problem.id}
-                className="rounded-xl border border-surface-600 bg-surface-900/75 p-4 transition duration-200 hover:border-surface-500"
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-surface-600 bg-surface-900/65 px-3 py-2">
+            <p className="text-xs uppercase tracking-[0.1em] text-slate-400">
+              {activeResult.summary.totalProblems} ativo(s) de {result.summary.totalProblems} problema(s)
+            </p>
+            {ignoredProblemIds.length > 0 ? (
+              <button
+                type="button"
+                onClick={onClearIgnoredProblems}
+                className="rounded-lg border border-surface-500 px-2.5 py-1 text-xs font-medium uppercase tracking-[0.08em] text-slate-300 transition duration-200 hover:border-slate-400 hover:text-slate-100"
               >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-medium text-slate-100">{problem.title}</p>
-                  <SeverityBadge severity={problem.severity} />
-                </div>
-                <p className="mt-2 text-sm text-slate-300">{problem.description}</p>
-                <p className="mt-2 text-xs text-slate-400">Recomendacao: {problem.recommendation}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-slate-300">
-            Nenhum ponto essencial foi identificado pelas regras atuais.
-          </p>
-        )}
+                Reincluir todos
+              </button>
+            ) : null}
+          </div>
+
+          {visibleProblems.length > 0 ? (
+            <ul className="space-y-3">
+              {visibleProblems.map((problem) => {
+                const isIgnored = ignoredSet.has(problem.id);
+                const isExpanded = expandedSampleProblemIds.includes(problem.id);
+                const sampleRows = isExpanded ? getProblemAttentionSamples(problem, dataset, 50) : [];
+                const sampleColumns = dataset ? getSamplePreviewColumns(dataset, problem, 6) : [];
+
+                return (
+                  <li
+                    key={problem.id}
+                    className={`rounded-xl border bg-surface-900/75 p-4 transition duration-200 hover:border-surface-500 ${
+                      isIgnored ? "border-surface-700 opacity-65" : "border-surface-600"
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-medium text-slate-100">{problem.title}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {isIgnored ? (
+                          <span className="rounded-full border border-surface-500 px-2 py-1 text-[11px] uppercase tracking-[0.1em] text-slate-300">
+                            Ignorado
+                          </span>
+                        ) : null}
+                        <SeverityBadge severity={problem.severity} />
+                      </div>
+                    </div>
+
+                    <p className="mt-2 text-sm text-slate-300">{problem.description}</p>
+                    <p className="mt-2 text-xs text-slate-400">Recomendacao: {problem.recommendation}</p>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onToggleIgnoreProblem(problem.id)}
+                        className={`rounded-lg border px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] transition duration-200 ${
+                          isIgnored
+                            ? "border-emerald-300/45 bg-emerald-400/10 text-emerald-100 hover:bg-emerald-400/20"
+                            : "border-amber-300/45 bg-amber-400/10 text-amber-100 hover:bg-amber-400/20"
+                        }`}
+                      >
+                        {isIgnored ? "Reincluir no tratamento" : "Ignorar no tratamento"}
+                      </button>
+
+                      {dataset ? (
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSample(problem.id)}
+                          className="rounded-lg border border-surface-500 px-2.5 py-1 text-xs font-medium uppercase tracking-[0.08em] text-slate-300 transition duration-200 hover:border-slate-400 hover:text-slate-100"
+                        >
+                          {isExpanded ? "Ocultar amostra" : "Ver amostra (max 50)"}
+                        </button>
+                      ) : null}
+                    </div>
+
+                    {isExpanded ? (
+                      <div className="mt-3 space-y-2 rounded-xl border border-surface-600 bg-surface-900/70 p-3">
+                        <p className="text-xs uppercase tracking-[0.1em] text-slate-400">
+                          Amostra de atencao: {sampleRows.length} linha(s)
+                        </p>
+                        {dataset && sampleRows.length > 0 ? (
+                          <div className="overflow-x-auto rounded-lg border border-surface-700">
+                            <table className="min-w-full text-left text-xs">
+                              <thead className="border-b border-surface-700 bg-surface-800/90">
+                                <tr>
+                                  <th className="whitespace-nowrap px-2 py-1.5 font-semibold uppercase tracking-[0.08em] text-slate-300">
+                                    Linha
+                                  </th>
+                                  {sampleColumns.map((columnKey) => (
+                                    <th
+                                      key={`${problem.id}-${columnKey}`}
+                                      className="whitespace-nowrap px-2 py-1.5 font-semibold uppercase tracking-[0.08em] text-slate-300"
+                                    >
+                                      {getColumnDisplayName(dataset, columnKey)}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {sampleRows.map((sample) => (
+                                  <tr
+                                    key={`${problem.id}-sample-${sample.rowNumber}`}
+                                    className="border-b border-surface-800/80"
+                                  >
+                                    <td className="whitespace-nowrap px-2 py-1.5 text-slate-200">
+                                      {sample.rowNumber}
+                                    </td>
+                                    {sampleColumns.map((columnKey) => (
+                                      <td
+                                        key={`${problem.id}-${sample.rowNumber}-${columnKey}`}
+                                        className="max-w-[240px] truncate px-2 py-1.5 text-slate-300"
+                                        title={formatSampleCellValue(sample.row[columnKey] ?? null)}
+                                      >
+                                        {formatSampleCellValue(sample.row[columnKey] ?? null)}
+                                      </td>
+                                    ))}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-slate-400">
+                            Nao foi encontrada amostra relevante para este ponto de atencao.
+                          </p>
+                        )}
+                      </div>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="text-sm text-slate-300">
+              Nenhum ponto essencial foi identificado pelas regras atuais.
+            </p>
+          )}
+        </div>
       </SectionCard>
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
@@ -323,9 +516,9 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
           title="Prioridades recomendadas"
           description="Sequencia sugerida para tratamento da amostra."
         >
-          {result.priorities.length > 0 ? (
+          {activeResult.priorities.length > 0 ? (
             <ul className="space-y-3">
-              {result.priorities.map((priority) => (
+              {activeResult.priorities.map((priority) => (
                 <li
                   key={priority.level}
                   className="rounded-xl border border-surface-600 bg-surface-900/75 p-4 transition duration-200 hover:border-surface-500"
@@ -367,7 +560,7 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
                     <div
                       className="h-2 rounded-full bg-rose-300/80 transition-all duration-300"
                       style={{
-                        width: getSeverityMixWidth(result.summary.issuesBySeverity.high, totalProblems),
+                        width: getSeverityMixWidth(activeResult.summary.issuesBySeverity.high, totalProblems),
                       }}
                     />
                   </div>
@@ -378,7 +571,7 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
                     <div
                       className="h-2 rounded-full bg-amber-300/80 transition-all duration-300"
                       style={{
-                        width: getSeverityMixWidth(result.summary.issuesBySeverity.medium, totalProblems),
+                        width: getSeverityMixWidth(activeResult.summary.issuesBySeverity.medium, totalProblems),
                       }}
                     />
                   </div>
@@ -389,7 +582,7 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
                     <div
                       className="h-2 rounded-full bg-sky-300/80 transition-all duration-300"
                       style={{
-                        width: getSeverityMixWidth(result.summary.issuesBySeverity.low, totalProblems),
+                        width: getSeverityMixWidth(activeResult.summary.issuesBySeverity.low, totalProblems),
                       }}
                     />
                   </div>
@@ -423,7 +616,7 @@ export function AnalysisResultsSection({ dataset, result }: AnalysisResultsSecti
               </tr>
             </thead>
             <tbody>
-              {result.columnMetrics.map((columnMetric) => {
+              {activeResult.columnMetrics.map((columnMetric) => {
                 const columnProblems = problemsByColumn.get(columnMetric.columnKey) ?? [];
                 const indicators = getColumnIndicators(columnMetric, columnProblems);
                 const displayColumnName =

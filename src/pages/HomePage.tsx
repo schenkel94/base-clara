@@ -1,7 +1,9 @@
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { LanguageTabsSection } from "@/features/code-suggestions/components/LanguageTabsSection";
 import { AnalysisResultsSection } from "@/features/data-quality/components/AnalysisResultsSection";
+import { buildEffectiveAnalysisResult } from "@/features/data-quality/utils/effectiveAnalysisResult";
 import { useLocalDataImport } from "@/features/data-import/hooks/useLocalDataImport";
 import { TechnicalChecklistSection } from "@/features/technical-checklist/components/TechnicalChecklistSection";
 import { UploadSection } from "@/pages/sections/UploadSection";
@@ -17,6 +19,29 @@ export function HomePage() {
     loadFile,
     clearData,
   } = useLocalDataImport();
+  const [ignoredProblemIds, setIgnoredProblemIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setIgnoredProblemIds([]);
+  }, [analysisResult?.summary.analyzedAt]);
+
+  const effectiveAnalysisResult = useMemo(() => {
+    return buildEffectiveAnalysisResult(analysisResult, new Set(ignoredProblemIds));
+  }, [analysisResult, ignoredProblemIds]);
+
+  const handleToggleIgnoredProblem = (problemId: string) => {
+    setIgnoredProblemIds((current) => {
+      if (current.includes(problemId)) {
+        return current.filter((id) => id !== problemId);
+      }
+
+      return [...current, problemId];
+    });
+  };
+
+  const handleClearIgnoredProblems = () => {
+    setIgnoredProblemIds([]);
+  };
 
   return (
     <AppShell>
@@ -32,11 +57,18 @@ export function HomePage() {
         clearData={clearData}
       />
 
-      <AnalysisResultsSection dataset={dataset} result={analysisResult} />
+      <AnalysisResultsSection
+        dataset={dataset}
+        result={analysisResult}
+        effectiveResult={effectiveAnalysisResult}
+        ignoredProblemIds={ignoredProblemIds}
+        onToggleIgnoreProblem={handleToggleIgnoredProblem}
+        onClearIgnoredProblems={handleClearIgnoredProblems}
+      />
 
-      <LanguageTabsSection dataset={dataset} analysisResult={analysisResult} />
+      <LanguageTabsSection dataset={dataset} analysisResult={effectiveAnalysisResult} />
 
-      <TechnicalChecklistSection analysisResult={analysisResult} />
+      <TechnicalChecklistSection analysisResult={effectiveAnalysisResult} />
 
       <footer className="rounded-2xl border border-surface-600 bg-surface-900/60 px-4 py-4 text-sm text-slate-300 md:px-5">
         <p className="font-medium text-slate-200">Powered by Mario Schenkel - Data Analyst</p>
